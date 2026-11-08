@@ -17,9 +17,9 @@ public enum MessagesManager {
     TOO_MANY_ARGUMENTS("too-many-arguments", "&cToo many arguments!"),
     NO_WORLDEDIT("no-worldedit", "&cWorldEdit isn't installed. &aInstall &cit, if you need this feature."),
     NO_SELECTION("no-selection", "&cMake a region selection first."),
-    NO_LAMPS_AFFECTED("no-lamps-affected", "&dNo lamps were affected."),
-    ON_LAMPS("on-lamps", "&f%affected &dlamps were turned on."),
-    OFF_LAMPS("off-lamps", "&f%affected &dlamps were turned off."),
+    NO_LAMPS_AFFECTED("no-lamps-affected", "&dNo lamps or shelves were affected."),
+    ON_LAMPS("on-lamps", "&f%affected &dlamps/shelves were turned on."),
+    OFF_LAMPS("off-lamps", "&f%affected &dlamps/shelves were turned off."),
     CONSOLE("console", "&cThis command cannot be run from the console.."),
     NO_PERMS("no-permissions", "&cYou don't have permissions to build here!");
 

@@ -2,13 +2,29 @@ name: LampControl
 author: Ceph
 version: ${spigot.plugin.version}
 main: cz.ceph.LampControl.LampControl
+api-version: '26.3'
+softdepend: [WorldEdit, FastAsyncWorldEdit]
 
 commands:
    lamp:
-      description: Turn on/off lamps with WorldEdit
+      description: Turn on/off lamps and shelves in your WorldEdit selection
       usage: /<command> [off]
       aliases: [lc, lampcontrol]
    /lamp:
-      description: Turn on/off lamps with WorldEdit
+      description: Turn on/off lamps and shelves in your WorldEdit selection
       usage: /<command> [off]
       aliases: [/lc, /lampcontrol]
+
+permissions:
+   lampcontrol.use:
+      description: Basic permission for using this plugin
+      default: true
+   lampcontrol.hand:
+      description: Toggle lamps with an empty hand
+      default: op
+   lampcontrol.shelf:
+      description: Toggle shelves (étagères) with the control item
+      default: true
+   lampcontrol.worldedit:
+      description: Use /lamp and //lamp with a WorldEdit selection
+      default: op
