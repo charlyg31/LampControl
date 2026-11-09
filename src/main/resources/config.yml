@@ -16,7 +16,6 @@ usePermissions: true
 
 # When this is set to true, OP'd players can use their hand to control the lamps in addition to the item above.
 # You may also give a player or group the 'lampcontrol.hand' permission.
-# Shelves always need the item: an empty hand is used by vanilla to take items off the shelf.
 opUsesHand: true
 
 # Toggle the lamps on/off with your item/hand! If off, lamps will turn ON, but not off.
@@ -28,6 +27,10 @@ controlRails: true
 # Toggle shelves (étagères) to their "powered" look with the item, like lamps.
 # Powered shelves connect with neighbours facing the same way (max 3) and swap the hotbar like vanilla.
 controlShelves: true
+
+# Shelves can also be toggled with an empty hand (standing). Sneak + empty hand keeps the vanilla
+# behaviour, to take items back from the shelf. Only needs 'lampcontrol.shelf'.
+shelfEmptyHand: true
 
 # Take the item from the player after they use it to turn on a lamp
 takeItemOnUse: false

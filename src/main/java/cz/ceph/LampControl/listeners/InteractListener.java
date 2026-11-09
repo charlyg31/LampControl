@@ -47,8 +47,10 @@ public class InteractListener implements Listener {
         if (LampControl.usePermissions && !player.hasPermission("lampcontrol.use")) return;
 
         if (BlockSwitcher.isShelf(block)) {
-            // Shelves: control item only, an empty hand takes items off the shelf in vanilla.
-            if (!LampControl.controlShelves || !holdsTool) return;
+            // Empty hand while standing toggles the shelf; sneaking with an empty hand is left to
+            // vanilla (the listener returned above), so players can still take their items back.
+            boolean shelfHand = emptyHand && LampControl.shelfEmptyHand;
+            if (!LampControl.controlShelves || !(holdsTool || shelfHand)) return;
             if (LampControl.usePermissions && !player.hasPermission("lampcontrol.shelf")) return;
             handleShelf(e, block);
             return;

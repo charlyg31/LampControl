@@ -18,7 +18,7 @@ import java.io.File;
 
 public class LampControl extends JavaPlugin {
     public static boolean opUsesHand = true, toggleLamps = true, takeItemOnUse = false, usePermissions = false,
-            controlRails = true, controlShelves = true;
+            controlRails = true, controlShelves = true, shelfEmptyHand = true;
     public static PluginDescriptionFile pluginInfo;
     public static YamlConfiguration messagesConfig;
     private static final int CONFIG_VERSION = 7;
@@ -70,6 +70,7 @@ public class LampControl extends JavaPlugin {
         toggleLamps = getConfig().getBoolean("toggleLamps", true);
         controlRails = getConfig().getBoolean("controlRails", true);
         controlShelves = getConfig().getBoolean("controlShelves", true);
+        shelfEmptyHand = getConfig().getBoolean("shelfEmptyHand", true);
     }
 
     private void loadMessages() {
