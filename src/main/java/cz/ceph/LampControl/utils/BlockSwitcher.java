@@ -6,6 +6,7 @@
 package cz.ceph.LampControl.utils;
 
 import cz.ceph.LampControl.LampControl;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -13,9 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Lightable;
 import org.bukkit.block.data.Rail;
-import org.bukkit.block.data.SideChaining;
 import org.bukkit.block.data.type.RedstoneRail;
-import org.bukkit.block.data.type.Shelf;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -53,14 +52,22 @@ public class BlockSwitcher {
         return block.getType() == Material.POWERED_RAIL;
     }
 
+    /**
+     * Shelves are detected by name (OAK_SHELF, SPRUCE_SHELF…) and handled through their block state
+     * string, so it works whatever BlockData class the server uses for them.
+     */
     public static boolean isShelf(Block block) {
-        return block.getBlockData() instanceof Shelf;
+        return isShelf(block.getType());
+    }
+
+    public static boolean isShelf(Material type) {
+        return type.name().endsWith("_SHELF");
     }
 
     /** True if the block is a lamp/rail/shelf currently in its "on" state. */
     public static boolean isOn(Block block) {
         BlockData data = block.getBlockData();
-        if (data instanceof Shelf shelf) return shelf.isPowered();
+        if (isShelf(block.getType())) return "true".equals(prop(data, "powered"));
         if (data instanceof RedstoneRail rail) return rail.isPowered();
         if (data instanceof Lightable lamp && block.getType() == Material.REDSTONE_LAMP) return lamp.isLit();
         return false;
@@ -112,16 +119,23 @@ public class BlockSwitcher {
      * (powered shelves facing the same way chain together, 3 max).
      */
     public void switchShelf(Block block, boolean power) {
-        if (!(block.getBlockData() instanceof Shelf shelf)) return;
-        BlockFace facing = shelf.getFacing();
+        if (!isShelf(block)) return;
+        BlockFace facing = facingOf(block);
+        if (facing == null) return;
 
-        shelf.setPowered(power);
-        shelf.setSideChain(SideChaining.ChainPart.UNCONNECTED);
-        block.setBlockData(shelf, false);
+        setProps(block, "powered=" + power + ",side_chain=unconnected");
         setManual(block, power);
 
         if (power) relinkRow(block, facing);
         else relinkNeighbours(block, facing);
+
+        // Vanilla may recompute the power of the shelf right after the change: re-apply it next tick.
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (isShelf(block) && isOn(block) != power && isManual(block) == power) {
+                setProps(block, "powered=" + power);
+                if (power) relinkRow(block, facing);
+            }
+        });
     }
 
     /** A shelf left the row (turned off or broken): the shelves on each side form their own chains. */
@@ -155,24 +169,47 @@ public class BlockSwitcher {
         for (int from = 0; from < row.size(); from += MAX_SHELF_CHAIN) {
             int size = Math.min(MAX_SHELF_CHAIN, row.size() - from);
             for (int j = 0; j < size; j++) {
-                SideChaining.ChainPart part;
-                if (size == 1) part = SideChaining.ChainPart.UNCONNECTED;
-                else if (j == 0) part = SideChaining.ChainPart.LEFT;
-                else if (j == size - 1) part = SideChaining.ChainPart.RIGHT;
-                else part = SideChaining.ChainPart.CENTER;
-                setChain(row.get(from + j), part);
+                String part;
+                if (size == 1) part = "unconnected";
+                else if (j == 0) part = "left";
+                else if (j == size - 1) part = "right";
+                else part = "center";
+                Block b = row.get(from + j);
+                if (!part.equals(prop(b.getBlockData(), "side_chain"))) setProps(b, "side_chain=" + part);
             }
         }
     }
 
-    private static void setChain(Block block, SideChaining.ChainPart part) {
-        if (!(block.getBlockData() instanceof Shelf shelf) || shelf.getSideChain() == part) return;
-        shelf.setSideChain(part);
-        block.setBlockData(shelf, false);
+    private static boolean isPoweredShelfFacing(Block block, BlockFace facing) {
+        return isShelf(block) && isOn(block) && facingOf(block) == facing;
     }
 
-    private static boolean isPoweredShelfFacing(Block block, BlockFace facing) {
-        return block.getBlockData() instanceof Shelf shelf && shelf.isPowered() && shelf.getFacing() == facing;
+    public static BlockFace facingOf(Block block) {
+        String facing = prop(block.getBlockData(), "facing");
+        if (facing == null) return null;
+        try {
+            return BlockFace.valueOf(facing.toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    /** Reads one property from the block state string, e.g. minecraft:oak_shelf[facing=north,powered=false]. */
+    private static String prop(BlockData data, String name) {
+        String state = data.getAsString();
+        int open = state.indexOf('[');
+        if (open < 0) return null;
+        for (String pair : state.substring(open + 1, state.length() - 1).split(",")) {
+            int eq = pair.indexOf('=');
+            if (eq > 0 && pair.substring(0, eq).equals(name)) return pair.substring(eq + 1);
+        }
+        return null;
+    }
+
+    /** Changes only the given properties (e.g. "powered=true,side_chain=left") without block updates. */
+    private static void setProps(Block block, String props) {
+        BlockData changed = block.getBlockData().merge(Bukkit.createBlockData(block.getType(), "[" + props + "]"));
+        block.setBlockData(changed, false);
     }
 
     /**

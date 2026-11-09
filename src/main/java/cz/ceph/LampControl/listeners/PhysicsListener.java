@@ -5,7 +5,6 @@ import cz.ceph.LampControl.utils.BlockSwitcher;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.type.Shelf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -45,8 +44,9 @@ public class PhysicsListener implements Listener {
     public void onBreak(BlockBreakEvent e) {
         Block block = e.getBlock();
         plugin.getSwitcher().setManual(block, false);
-        if (block.getBlockData() instanceof Shelf shelf && shelf.isPowered()) {
-            BlockFace facing = shelf.getFacing();
+        if (BlockSwitcher.isShelf(block) && BlockSwitcher.isOn(block)) {
+            BlockFace facing = BlockSwitcher.facingOf(block);
+            if (facing == null) return;
             plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getSwitcher().relinkNeighbours(block, facing));
         }
     }
