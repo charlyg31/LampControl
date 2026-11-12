@@ -9,7 +9,6 @@ import cz.ceph.LampControl.listeners.InteractListener;
 import cz.ceph.LampControl.listeners.PhysicsListener;
 import cz.ceph.LampControl.utils.BlockSwitcher;
 import cz.ceph.LampControl.utils.Commands;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,13 +16,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 
 public class LampControl extends JavaPlugin {
-    public static boolean opUsesHand = true, toggleLamps = true, takeItemOnUse = false, usePermissions = false,
-            controlRails = true, controlShelves = true, shelfEmptyHand = true;
+    public static boolean toggleLamps = true, usePermissions = false, controlRails = true, controlShelves = true;
     public static PluginDescriptionFile pluginInfo;
     public static YamlConfiguration messagesConfig;
-    private static final int CONFIG_VERSION = 7;
+    private static final int CONFIG_VERSION = 8;
 
-    public Material toolMaterial = Material.FLINT_AND_STEEL;
     private BlockSwitcher switcher;
 
     @Override
@@ -57,20 +54,10 @@ public class LampControl extends JavaPlugin {
 
     private void loadConfig() {
         reloadConfig();
-        String itemName = getConfig().getString("lampControlItem", "FLINT_AND_STEEL");
-        Material item = Material.matchMaterial(itemName);
-        if (item == null || !item.isItem()) {
-            getLogger().warning("Unknown lampControlItem '" + itemName + "', using FLINT_AND_STEEL.");
-            item = Material.FLINT_AND_STEEL;
-        }
-        toolMaterial = item;
         usePermissions = getConfig().getBoolean("usePermissions", true);
-        opUsesHand = getConfig().getBoolean("opUsesHand", true);
-        takeItemOnUse = getConfig().getBoolean("takeItemOnUse", false);
         toggleLamps = getConfig().getBoolean("toggleLamps", true);
         controlRails = getConfig().getBoolean("controlRails", true);
         controlShelves = getConfig().getBoolean("controlShelves", true);
-        shelfEmptyHand = getConfig().getBoolean("shelfEmptyHand", true);
     }
 
     private void loadMessages() {

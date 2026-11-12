@@ -9,7 +9,6 @@ import cz.ceph.LampControl.LampControl;
 import cz.ceph.LampControl.utils.BlockSwitcher;
 import cz.ceph.LampControl.utils.MessagesManager;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -39,30 +38,17 @@ public class InteractListener implements Listener {
         Player player = e.getPlayer();
         if (player.isSneaking()) return;
 
-        Material inHand = player.getInventory().getItemInMainHand().getType();
-        boolean holdsTool = inHand == plugin.toolMaterial;
-        boolean emptyHand = inHand == Material.AIR;
-        boolean handAllowed = (LampControl.opUsesHand && player.isOp()) || player.hasPermission("lampcontrol.hand");
-
+        // Everything is done with an empty hand. Sneaking is left to vanilla (returned above),
+        // so players can still take their items back from a shelf.
+        if (player.getInventory().getItemInMainHand().getType() != Material.AIR) return;
         if (LampControl.usePermissions && !player.hasPermission("lampcontrol.use")) return;
 
         if (BlockSwitcher.isShelf(block)) {
-            // Empty hand while standing toggles the shelf; sneaking with an empty hand is left to
-            // vanilla (the listener returned above), so players can still take their items back.
-            boolean shelfHand = emptyHand && LampControl.shelfEmptyHand;
-            if (!LampControl.controlShelves || !(holdsTool || shelfHand)) return;
-            if (LampControl.usePermissions && !player.hasPermission("lampcontrol.shelf")) return;
-            handleShelf(e, block);
-            return;
-        }
-
-        if (!holdsTool && !(emptyHand && handAllowed)) return;
-
-        if (BlockSwitcher.isLamp(block)) {
+            if (LampControl.controlShelves) handleShelf(e, block);
+        } else if (BlockSwitcher.isLamp(block)) {
             handleLamp(e, block);
         } else if (BlockSwitcher.isPoweredRail(block)) {
-            if (!LampControl.controlRails) return;
-            handleRail(e, block);
+            if (LampControl.controlRails) handleRail(e, block);
         }
     }
 
@@ -90,7 +76,7 @@ public class InteractListener implements Listener {
     private void handleShelf(PlayerInteractEvent e, Block block) {
         boolean on = BlockSwitcher.isOn(block);
         if (on && !LampControl.toggleLamps) return;
-        e.setCancelled(true); // don't put the item on the shelf / don't swap the hotbar
+        e.setCancelled(true); // don't take an item off the shelf / don't swap the hotbar
         if (!canBuild(e.getPlayer(), block)) return;
 
         plugin.getSwitcher().switchShelf(block, !on);
@@ -110,13 +96,6 @@ public class InteractListener implements Listener {
     }
 
     private void afterUse(Player player, Block block, boolean turnedOn) {
-        if (LampControl.takeItemOnUse && player.getGameMode() != GameMode.CREATIVE) {
-            ItemStack item = player.getInventory().getItemInMainHand();
-            if (item.getType() == plugin.toolMaterial) {
-                item.setAmount(item.getAmount() - 1);
-                player.getInventory().setItemInMainHand(item.getAmount() > 0 ? item : null);
-            }
-        }
         block.getWorld().playSound(block.getLocation(), Sound.UI_BUTTON_CLICK, 0.5F, turnedOn ? 1F : 0F);
     }
 }

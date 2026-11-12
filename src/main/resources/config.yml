@@ -6,40 +6,26 @@
 #
 #	Need a new config file? Just delete this one and a new one will be created.
 #
+#	Lamps, powered rails and shelves are switched with a right-click, empty hand.
+#	Sneak + right-click keeps the vanilla behaviour (e.g. to take items back from a shelf).
+#
 
-# The item with which players can turn lamps, rails and shelves on/off.
-# Use a Bukkit material name. (default: FLINT_AND_STEEL)
-lampControlItem: FLINT_AND_STEEL
-
-# If set to true, then LampControl will check if players have permission, otherwise it will let everyone control lamps.
+# If set to true, players need 'lampcontrol.use' (given to everyone by default).
 usePermissions: true
 
-# When this is set to true, OP'd players can use their hand to control the lamps in addition to the item above.
-# You may also give a player or group the 'lampcontrol.hand' permission.
-opUsesHand: true
-
-# Toggle the lamps on/off with your item/hand! If off, lamps will turn ON, but not off.
+# Toggle the lamps on/off with your hand! If off, lamps will turn ON, but not off.
 toggleLamps: true
 
-# Toggle the rails on/off with your item/hand! If off, rails will turn ON, but not off.
+# Switch powered rails on/off with your hand.
 controlRails: true
 
-# Toggle shelves (étagères) to their "powered" look with the item, like lamps.
+# Switch shelves (étagères) to their "powered" look with your hand, like lamps.
 # Powered shelves connect with neighbours facing the same way (max 3) and swap the hotbar like vanilla.
 controlShelves: true
 
-# Shelves can also be toggled with an empty hand (standing). Sneak + empty hand keeps the vanilla
-# behaviour, to take items back from the shelf. Only needs 'lampcontrol.shelf'.
-shelfEmptyHand: true
-
-# Take the item from the player after they use it to turn on a lamp
-takeItemOnUse: false
-
 # Don't edit this or I, your God, will reset this config.
-config-version: 7
+config-version: 8
 
 # Permissions:
-# lampcontrol.use -> Basic permission for using this plugin
-# lampcontrol.hand -> Needed for ON/OFF lamps with hand
-# lampcontrol.shelf -> Needed for ON/OFF shelves
-# lampcontrol.worldedit -> Allows using WorldEdit to turn on/off lamps and shelves
+# lampcontrol.use -> Switch lamps, rails and shelves by hand (everyone by default)
+# lampcontrol.worldedit -> Allows using WorldEdit to turn on/off lamps and shelves (op by default)

@@ -17,13 +17,7 @@ commands:
 
 permissions:
    lampcontrol.use:
-      description: Basic permission for using this plugin
-      default: true
-   lampcontrol.hand:
-      description: Toggle lamps with an empty hand
-      default: op
-   lampcontrol.shelf:
-      description: Toggle shelves (étagères) with the control item
+      description: Switch lamps, rails and shelves with an empty hand
       default: true
    lampcontrol.worldedit:
       description: Use /lamp and //lamp with a WorldEdit selection
